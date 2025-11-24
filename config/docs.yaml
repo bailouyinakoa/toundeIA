@@ -1,0 +1,97 @@
+# Course document catalog for ingestion pipeline
+# Each entry describes a single source file and the metadata required downstream.
+documents:
+  - id: chap1_intro
+    filename: data/raw/pdf/chap1_Intro_algorithmique_et_SDD.pdf
+    doc_type: pdf
+    chapter: 1
+    title: "Introduction a l'algorithmique et aux SDD"
+    topics:
+      - introduction
+      - structures_de_donnees
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: ""
+  - id: chap2_variables
+    filename: data/raw/pdf/chap2_variables_instructions_de_base_Algo_et_SDD_Octobre2022.pdf
+    doc_type: pdf
+    chapter: 2
+    title: "Variables et instructions de base"
+    topics:
+      - bases_python
+      - pseudo_code
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: ""
+  - id: chap3_structures_de_controle
+    filename: data/raw/pdf/chap3_Structures_de_controle_Algo_et_SDD_Decembre2022.pdf
+    doc_type: pdf
+    chapter: 3
+    title: "Structures de controle"
+    topics:
+      - boucles
+      - conditions
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: ""
+  - id: chap4_structures_de_donnees
+    filename: data/raw/pdf/chap4_Structures_de_donnees_de_base_algo_et_SDD_Octobre2022.pdf
+    doc_type: pdf
+    chapter: 4
+    title: "Structures de donnees de base"
+    topics:
+      - tableaux
+      - piles_files
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: ""
+  - id: chap5_procedures_fonctions
+    filename: data/raw/pdf/chap5_Procedures_et_fonctions_algo_et_SDD_allege_Dec2022.pdf
+    doc_type: pdf
+    chapter: 5
+    title: "Procedures et fonctions"
+    topics:
+      - modularite
+      - appels_recursifs
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: ""
+default_output_format:
+  type: jsonl
+  fields:
+    - chunk_id
+    - doc_id
+    - chapter
+    - section
+    - source_filename
+    - text
+    - tokens
+    - tags
+chunking:
+  splitter: recursive_character
+  chunk_size: 500
+  chunk_overlap: 80
+  separators:
+    - "\n## "
+    - "\n# "
+    - "\n"
+embeddings:
+  provider: mistral
+  model: mistral-embed
+  batch_size: 16
+  output_dir: data/processed
+vector_store:
+  engine: faiss
+  index_path: data/metadata/vector_store.faiss
+  metadata_store: data/metadata/chunks.jsonl
+  distance_metric: cosine
