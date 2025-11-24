@@ -1,4 +1,4 @@
-# RAG Campus – Chatbot pédagogique
+# RAG Campus – Chatbot pédagogique (DeepLearn)
 
 Plateforme d'apprentissage basée sur un pipeline Retrieval-Augmented Generation (FAISS + Mistral) et une interface Django. Les documents de cours sont ingérés, chunkés, vectorisés puis interrogés en mode conversationnel (débutant, exercices, révision).
 
