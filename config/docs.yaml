@@ -66,6 +66,34 @@ documents:
       extraction: done
       cleaned: false
       notes: ""
+  - id: anciens_devoirs
+    filename: data/raw/pdf/Anciens_devoirs.pdf
+    doc_type: pdf
+    chapter: null
+    title: "Anciens devoirs et sujets d'examen"
+    topics:
+      - devoirs
+      - examens
+      - revision
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: "Ajout TD/devoirs 2025-11-26"
+  - id: td_algo_2021_2022
+    filename: data/raw/pdf/TDAlgo2021_2022.pdf
+    doc_type: pdf
+    chapter: null
+    title: "Travaux dirigés Algorithmique 2021-2022"
+    topics:
+      - td
+      - exercices
+      - algorithmique
+    language: fr
+    status:
+      extraction: done
+      cleaned: false
+      notes: "Ajout TD/devoirs 2025-11-26"
 default_output_format:
   type: jsonl
   fields:
@@ -79,8 +107,8 @@ default_output_format:
     - tags
 chunking:
   splitter: recursive_character
-  chunk_size: 500
-  chunk_overlap: 80
+  chunk_size: 380
+  chunk_overlap: 60
   separators:
     - "\n## "
     - "\n# "
