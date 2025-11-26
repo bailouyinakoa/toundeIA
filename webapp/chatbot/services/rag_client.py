@@ -26,8 +26,15 @@ class SourceChunk:
 
 ROOT_DIR = Path(getattr(settings, "ROOT_DIR", Path(__file__).resolve().parents[3]))
 if str(ROOT_DIR) not in sys.path:
-    #le dossier racine pour permettre l'import du package rag_service local.
+    # Ajoute le dossier racine pour permettre l'import du package rag_service local.
     sys.path.append(str(ROOT_DIR))
+
+try:  # pragma: no cover - import défensif pour environnements partiels
+    from rag_service.llm import LLMCapacityError  # type: ignore
+except Exception:  # pragma: no cover - rag_service pas disponible
+
+    class LLMCapacityError(Exception):
+        pass
 
 
 class RAGClient:
@@ -43,7 +50,7 @@ class RAGClient:
             try:
                 self._service = RAGService()
             except Exception as exc:  # pragma: no cover - journalisation défensive
-                logger.exception("Impossible d'initialiser RAGService")
+                logger.exception("Impossible d'initialiser RAGService: %s", exc)
                 self._service = None
 
     def _format_sources(self, response) -> List[Dict[str, Any]]:
@@ -70,7 +77,11 @@ class RAGClient:
         return sources
 
     def answer(
-        self, question: str, mode: str, history: List[Dict[str, str]] | None = None
+        self,
+        question: str,
+        mode: str,
+        chapter: str | None = None,
+        history: List[Dict[str, str]] | None = None,
     ) -> Dict[str, Any]:
         if not self._service:
             logger.info(
@@ -84,8 +95,14 @@ class RAGClient:
 
         try:
             rag_response = self._service.answer(
-                question=question.strip(), mode=mode, history=history or []
+                question=question.strip(),
+                mode=mode,
+                chapter=chapter,
+                history=history or [],
             )
+        except LLMCapacityError as exc:
+            logger.warning("LLM capacity issue: %s", exc)
+            raise RAGServiceError(str(exc)) from exc
         except Exception as exc:  # pragma: no cover - journalisation défensive
             logger.exception("Erreur lors de l'appel au backend RAG")
             raise RAGServiceError(
@@ -100,6 +117,9 @@ class RAGClient:
                 "history_size": len(history or []),
                 "citations": getattr(rag_response, "citations", []),
                 "latency_ms": getattr(rag_response, "latency_ms", 0.0),
+                "chapter": chapter,
+                "retrieval_ms": getattr(rag_response, "retrieval_ms", 0.0),
+                "generation_ms": getattr(rag_response, "generation_ms", 0.0),
             },
         }
 

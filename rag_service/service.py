@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import asdict, dataclass
-from typing import Dict, List, Optional
+import re
+from typing import Dict, List, Optional, Union
 
 from .config import get_settings
-from .llm import LLMClient
+from .llm import LLMClient, LLMCapacityError
 from .retriever import RetrievedChunk, Retriever
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -17,6 +21,8 @@ class RAGResponse:
     citations: List[Dict]
     chunks: List[Dict]
     latency_ms: float
+    retrieval_ms: float
+    generation_ms: float
 
 
 class RAGService:
@@ -44,16 +50,52 @@ class RAGService:
     def _chunks_to_dict(self, chunks: List[RetrievedChunk]) -> List[Dict]:
         return [asdict(chunk) for chunk in chunks]
 
+    def _normalize_chapter(
+        self, chapter: Optional[Union[str, int]], question: str
+    ) -> Optional[int]:
+        if chapter:
+            if isinstance(chapter, int):
+                return chapter
+            if isinstance(chapter, str):
+                digits = re.findall(r"\d+", chapter)
+                if digits:
+                    return int(digits[0])
+        match = re.search(r"chapitre\s+(\d+)", question, flags=re.IGNORECASE)
+        if match:
+            return int(match.group(1))
+        return None
+
+    def _prepare_history(self, history: Optional[List[Dict]]) -> List[Dict[str, str]]:
+        if not history:
+            return []
+        sanitized: List[Dict[str, str]] = []
+        for item in history[-6:]:
+            role = str(item.get("role", "user")).strip().lower()
+            content = str(item.get("content", "")).strip()
+            if not content:
+                continue
+            sanitized.append({"role": role, "content": content})
+        return sanitized
+
     def answer(
         self,
         question: str,
         mode: str = "standard",
+        chapter: Optional[Union[str, int]] = None,
         history: Optional[List[Dict]] = None,
     ) -> RAGResponse:
         if not question.strip():
             raise ValueError("Question must not be empty")
-        start = time.perf_counter()
-        retrieved = self.retriever.search(question)
+        chapter_hint = self._normalize_chapter(chapter, question)
+        history_payload = self._prepare_history(history)
+        total_start = time.perf_counter()
+        retrieval_start = time.perf_counter()
+        retrieved = self.retriever.search(
+            question,
+            chapter=chapter_hint,
+            history=history_payload,
+        )
+        retrieval_ms = (time.perf_counter() - retrieval_start) * 1000
         context_payload = [
             {
                 "text": chunk.text,
@@ -63,12 +105,42 @@ class RAGService:
             }
             for chunk in retrieved
         ]
-        answer = self.llm.generate(question, context_payload, mode=mode)
-        latency_ms = (time.perf_counter() - start) * 1000
+        llm_start = time.perf_counter()
+        try:
+            answer = self.llm.generate(
+                question,
+                context_payload,
+                mode=mode,
+                chapter=chapter_hint,
+                history=history_payload,
+            )
+        except LLMCapacityError:
+            logger.warning(
+                "LLM capacity limit reached | mode=%s chapter=%s chunks=%d",
+                mode,
+                chapter_hint,
+                len(retrieved),
+            )
+            raise
+        generation_ms = (time.perf_counter() - llm_start) * 1000
+        latency_ms = (time.perf_counter() - total_start) * 1000
         citations = self._format_citations(retrieved)
+
+        logger.info(
+            "RAG answer generated | mode=%s chapter=%s chunks=%d retrieval_ms=%.2f generation_ms=%.2f total_ms=%.2f",
+            mode,
+            chapter_hint,
+            len(retrieved),
+            retrieval_ms,
+            generation_ms,
+            latency_ms,
+        )
+
         return RAGResponse(
             answer=answer,
             citations=citations,
             chunks=self._chunks_to_dict(retrieved),
             latency_ms=latency_ms,
+            retrieval_ms=retrieval_ms,
+            generation_ms=generation_ms,
         )

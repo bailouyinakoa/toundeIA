@@ -12,7 +12,7 @@ from pypdf import PdfReader
 
 
 def load_config(config_path: Path) -> Dict:
-    if not config_path.exists():
+    if not config_path.exists(): 
         raise FileNotFoundError(f"Missing config file: {config_path}")
     with config_path.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle)

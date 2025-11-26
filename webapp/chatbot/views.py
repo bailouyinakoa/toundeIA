@@ -57,7 +57,10 @@ def chat_view(request: HttpRequest) -> HttpResponse:
         client = get_rag_client()
         try:
             result = client.answer(
-                question=question, mode=mode, history=history_payload
+                question=question,
+                mode=mode,
+                chapter=chapter,
+                history=history_payload,
             )
         except RAGServiceError as exc:
             user_message.delete()
