@@ -1,0 +1,255 @@
+@media(orientation: landscape){
+    .validate{
+          border: none;
+          background-color: transparent;
+          height: 100%;
+          justify-content: center;
+          vertical-align: middle;
+          
+
+      }
+      .icon{
+          width: 40px;
+          height: 40px;
+          background-color: rgb(255, 255, 255);
+          border-radius: 60px;
+          border: 2px;
+          border-style: solid;
+          padding: 5px;
+          }
+          .icon:hover{
+            transition: all 0.5s;
+              box-shadow: 0 0 0 0.2rem rgba(111, 230, 190, 0.884),
+             0 0 0 0.4rem rgb(91, 227, 111),
+             0 0 0 0.5rem rgba(250, 253, 101, 0.884),
+             0 0 0 0.6rem rgba(240, 83, 75, 0.884);
+          }
+      .bote{
+          background-color: rgba(245, 4, 4, 0.678);
+          box-shadow: none;
+          margin-bottom: 0px; 
+          height: 60px;
+          position: fixed;
+          bottom: 0;
+          visibility: hidden;
+          justify-content: center;
+          right: 0;
+          left: 0;
+          vertical-align: middle;
+          padding-bottom: 10px;
+          padding-left: 20px;
+          margin-left: 30%;
+          border-radius: 0;
+          border-radius: none;
+      
+          margin-left:40% ;
+          display:grid;
+          grid-template-columns: 70% 30%;
+      }
+  .conteneur{
+      width: 100%;
+      padding: 20px;
+      margin-left: 30%;
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+  }
+  .message{
+      max-width: 90%;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+  }
+  .assistant{
+      float: left;
+      border-style: solid;
+      border: 1px;
+      border-color: black;
+      clear: both;
+      align-self: flex-end;
+  }
+  .user{
+      background-color:aqua;
+      float: right;
+      border: 1px;
+      clear: both;
+      border-style: solid;
+      align-self: flex-start;
+  }
+  .toolbar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: none;
+    right: 0;
+    margin-left: 30%;
+    visibility: hidden;
+    width: 100%;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+  .menu{
+    visibility: hidden;
+  }
+  .railbar{
+    border-radius: 0;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    box-shadow: 1px;
+    border-top: 0;
+    border-right: 1px;
+    overflow-x: hidden;
+    padding-bottom: 20%;
+    border-style: solid;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+
+  }
+
+
+  .body{
+     background: linear-gradient(180deg, #edf2ff 0%, #fefefe 60%);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 20%;
+            padding-top: 20%;
+            overflow-x: hidden;
+            color: #111827;
+  }
+}
+
+
+@media(orientation: portrait){
+    .validate{
+          border: none;
+          background-color: transparent;
+          height: 100%;
+          justify-content: center;
+          vertical-align: middle;
+          
+
+      }
+      .icon{
+          width: 40px;
+          height: 40px;
+          background-color: rgb(255, 255, 255);
+          border-radius: 60px;
+          border: 2px;
+          border-style: solid;
+          padding: 5px;
+          }
+          .icon:hover{
+            transition: all 0.5s;
+              box-shadow: 0 0 0 0.2rem rgba(111, 230, 190, 0.884),
+             0 0 0 0.4rem rgb(91, 227, 111),
+             0 0 0 0.5rem rgba(250, 253, 101, 0.884),
+             0 0 0 0.6rem rgba(240, 83, 75, 0.884);
+          }
+      .bot{
+          background-color: rgba(247, 246, 246, 0.678);
+          box-shadow: none;
+          margin-bottom: 0px; 
+          height: 60px;
+          position: fixed;
+          bottom: 0;
+          justify-content: center;
+          right: 0;
+          left: 0;
+          vertical-align: middle;
+          display: flex;
+          padding-bottom: 10px;
+          padding-left: 20px;
+          border-radius: 0;
+          border-top-left-radius: 20px;
+          border-top-right-radius: 20px;
+      }
+  .conteneur{
+      width: 100%;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+  }
+  .message{
+      max-width: 90%;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+  }
+  .assistant{
+      float: left;
+      border-style: solid;
+      border: 1px;
+      border-color: black;
+      clear: both;
+      align-self: flex-end;
+  }
+  .user{
+      background-color:aqua;
+      float: right;
+      border: 1px;
+      clear: both;
+      border-style: solid;
+      align-self: flex-start;
+  }
+   .toolbar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-radius: none;
+    right: 0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background-color: rgba(247, 246, 246, 0.678);
+  }
+  .menu{
+    visibility: visible;
+    width: 40px;
+     height: 40px;
+  }
+    .railbar{
+    border-radius: none;
+    visibility: hidden;
+
+  }
+
+  .drawer{
+    position: fixed;
+    left:-70%;
+    background-color: white;
+    top: 0;
+    width:70%;
+    height: 100%;
+    padding:20px;
+    transition:0.3s;
+    z-index:1001;
+  }
+  .overlay{
+    position: fixed;
+    top: 0 ;
+    left: 0 ;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    display:none;
+    z-index:1000;
+  }
+
+ .body{
+     background: linear-gradient(180deg, #edf2ff 0%, #fefefe 60%);
+            margin: 0;
+            padding: 0;
+            padding-bottom: 20%;
+            padding-top: 20%;
+            overflow-x: hidden;
+            color: #111827;
+  }
+}
+
+

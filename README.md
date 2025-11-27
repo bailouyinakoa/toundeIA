@@ -12,6 +12,7 @@ Plateforme d'apprentissage basée sur un pipeline Retrieval-Augmented Generation
 ## Prérequis
 - Python 3.13 (venv recommandé).
 - Clé API Mistral (`MISTRAL_API_KEY`).
+- (Optionnel) Clé API Groq (`GROQ_API_KEY`) pour activer un secours si Mistral est saturé.
 - FAISS CPU (`faiss-cpu`) déjà listé dans `requirements.txt`.
 
 ## Installation
@@ -40,7 +41,7 @@ Test rapide :
 ```powershell
 python scripts/test_rag.py --question "Qu'est-ce qu'un algorithme ?"
 ```
-Retourne la réponse Mistral + citations.
+ Retourne la réponse Mistral (avec secours Groq si activé) + citations.
 
 ## Application Django
 ```powershell

@@ -26,7 +26,7 @@ SECRET_KEY = env(
 # ⚠️ Ne laissez jamais DEBUG activé en production.
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1","10.18.35.167"])
 
 # Applications Django (cœur, dépendances tierces, app métier chatbot).
 INSTALLED_APPS = [
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "channels",
     "chatbot",
+    "authentication",
 ]
 
 MIDDLEWARE = [
@@ -110,8 +111,8 @@ USE_TZ = True
 
 # Emplacements des fichiers statiques/médias pour l'interface du chatbot.
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = ROOT_DIR / "staticfiles"
+#STATICFILES_DIRS = [BASE_DIR / "static"]
+#STATIC_ROOT = ROOT_DIR / "staticfiles"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = ROOT_DIR / "media"
@@ -123,6 +124,9 @@ MISTRAL_API_KEY = env("MISTRAL_API_KEY", default="")
 FAISS_INDEX_PATH = env(
     "FAISS_INDEX_PATH", default=str(ROOT_DIR / "data" / "processed" / "faiss.index")
 )
+
+LOGIN_REDIRECT_URL= 'chatbot:chat'
+
 
 # Identifiant auto par défaut pour les modèles.
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

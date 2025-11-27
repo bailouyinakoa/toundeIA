@@ -1,0 +1,110 @@
+{% load static chatbot_markdown %}
+{% load static %}
+
+
+<div class="box">
+    <div class="shell">
+        <header class="hero">
+            <h1>Chatbot pédagogique</h1>
+            <p>
+                Posez vos questions, choisissez un mode d'explication et suivez les sources citées
+                automatiquement par le moteur RAG.
+            </p>
+            <div class="hero-meta">
+                <span class="chip" title="Mode courant">
+                    {% if conversation %}
+                        {{ conversation.get_mode_display|default:"Standard" }}
+                    {% else %}
+                        Standard
+                    {% endif %}
+                </span>
+                <span class="chip" title="Messages conservés">
+                    {{ chat_messages|length }} messages
+                </span>
+                {% if conversation and conversation.chapter %}
+                    <span class="chip" title="Chapitre ciblé">Chapitre {{ conversation.chapter }}</span>
+                {% endif %}
+            </div>
+        </header>
+
+        {% if messages %}
+            {% for django_message in messages %}
+                <article class="panel" style="border-left:4px solid var(--accent);">
+                    {{ django_message }}
+                </article>
+            {% endfor %}
+        {% endif %}
+
+        <section class="panel">
+            <div class="chat-stream" id="chat-stream">
+                {% for msg in chat_messages %}
+                    <article class="bubble {{ msg.role }}" id="result">
+                        <header>
+                            <span>{{ msg.get_role_display }}</span>
+                            <span>{{ msg.created_at|date:"d/m/Y H:i" }}</span>
+                        </header>
+                        {% if msg.role == 'assistant' %}
+                            <div class="markdown">{{ msg.content|render_markdown }}</div>
+                        {% else %}
+                            <p>{{ msg.content|linebreaks }}</p>
+                        {% endif %}
+                        {% with msg.sources.all as source_items %}
+                            {% if source_items %}
+                                <div class="sources-list">
+                                    {% for source in source_items %}
+                                        <div class="source-card">
+                                            <span><strong>{{ source.title }}</strong></span>
+                                            {% if source.path %}
+                                                <span>{{ source.path|linebreaks }}</span>
+                                            {% endif %}
+                                            <div class="source-meta">
+                                                {% if source.score %}<span>Score {{ source.score|floatformat:2 }}</span>{% endif %}
+                                                {% if source.extra.chapter %}<span>Chapitre {{ source.extra.chapter }}</span>{% endif %}
+                                                {% if source.extra.page %}<span>Page {{ source.extra.page }}</span>{% endif %}
+                                            </div>
+                                            {% if source.extra.tags %}
+                                                <div class="tag-list">
+                                                    {% for tag in source.extra.tags %}
+                                                        <span class="tag">{{ tag }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    </article>
+                {% empty %}
+                    {% if user.is_authenticated %}
+                        <div class="empty-state hero">
+                            ✨ Bienvenu {{ request.user.username }} ! Commencez par poser une question pour lancer la session de révision.
+                        </div>
+                    {% else %}
+                        <div class="empty-state hero">
+                            ✨ Commencez par poser une question pour lancer la session de révision.
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const stream = document.getElementById('chat-stream');
+        if (stream) {
+            stream.scrollTop = stream.scrollHeight;
+        }
+        const textarea = document.getElementById('{{ form.question.id_for_label }}');
+        const form = document.getElementById('form') || document.querySelector('form.chat-form');
+        if (textarea && form) {
+            textarea.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' && event.ctrlKey) {
+                    form.requestSubmit();
+                }
+            });
+        }
+    });
+</script>

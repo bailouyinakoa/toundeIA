@@ -1,0 +1,28 @@
+.form-controls{
+    border-radius: 30px;
+    border: none;
+    padding: 10px;
+    outline: none;
+    
+    color: rgb(0, 0, 0);
+    vertical-align: middle;
+    left: 0;
+    width: 100%;
+    text-decoration: rgb(0, 0, 0);
+    background-color: transparent;
+    top:0 ;
+
+}
+
+.form-controls:focus{
+    border-radius: 30px;
+    border: none;
+    padding: 10px;
+    outline: none;
+    color: rgb(0, 0, 0);
+    vertical-align: middle;
+    left: 0;
+    background-color: transparent;
+    width: 100%;
+    top:0 ;
+}

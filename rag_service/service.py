@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Union
 
 from .config import get_settings
 from .llm import LLMClient, LLMCapacityError
-from .retriever import RetrievedChunk, Retriever
+from .retriever import EmbeddingCapacityError, RetrievedChunk, Retriever
 
 logger = logging.getLogger(__name__)
 
@@ -90,11 +90,19 @@ class RAGService:
         history_payload = self._prepare_history(history)
         total_start = time.perf_counter()
         retrieval_start = time.perf_counter()
-        retrieved = self.retriever.search(
-            question,
-            chapter=chapter_hint,
-            history=history_payload,
-        )
+        try:
+            retrieved = self.retriever.search(
+                question,
+                chapter=chapter_hint,
+                history=history_payload,
+            )
+        except EmbeddingCapacityError:
+            logger.warning(
+                "Embedding capacity limit reached | mode=%s chapter=%s",
+                mode,
+                chapter_hint,
+            )
+            raise
         retrieval_ms = (time.perf_counter() - retrieval_start) * 1000
         context_payload = [
             {

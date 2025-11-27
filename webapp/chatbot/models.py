@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Conversation(models.Model):
@@ -24,6 +25,8 @@ class Conversation(models.Model):
         choices=Mode.choices,
         default=Mode.STANDARD,
     )
+    me=models.ForeignKey(User,on_delete=models.CASCADE,related_name="me",null=True,blank=True,)
+    title=models.CharField(max_length=256455,blank=True,null=True)
     chapter = models.CharField(max_length=128, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

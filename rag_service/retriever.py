@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import logging
+import time
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,8 +13,11 @@ from typing import Dict, List, Sequence, Set, Optional
 import faiss
 import numpy as np
 from mistralai import Mistral
+from mistralai.models.sdkerror import SDKError
 
 from .config import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,6 +29,10 @@ class RetrievedChunk:
     page: int | None
     source_filename: str | None
     tags: Sequence[str]
+
+
+class EmbeddingCapacityError(RuntimeError):
+    """Raised when the embedding API refuses a request for capacity reasons."""
 
 
 class Retriever:
@@ -85,7 +94,39 @@ class Retriever:
         )
 
     def _embed_query(self, query: str) -> np.ndarray:
-        response = self.client.embeddings.create(model=self.embed_model, inputs=[query])
+        attempts = 3
+        response = None
+        for attempt in range(1, attempts + 1):
+            try:
+                response = self.client.embeddings.create(
+                    model=self.embed_model, inputs=[query]
+                )
+                break
+            except SDKError as err:
+                status = getattr(err, "status_code", None)
+                message = getattr(err, "message", "")
+                capacity_hit = status == 429 or "capacity" in message.lower()
+                if not capacity_hit:
+                    raise RuntimeError(
+                        "Erreur lors de la génération des embeddings"
+                    ) from err
+                if attempt == attempts:
+                    logger.error(
+                        "Embedding capacity exceeded after %d attempts", attempts
+                    )
+                    raise EmbeddingCapacityError(
+                        "Le service d'embeddings est temporairement saturé. Réessaie dans quelques secondes."
+                    ) from err
+                delay = 0.8 * attempt
+                logger.warning(
+                    "Embedding capacity exceeded (tentative %d/%d). Nouvelle tentative dans %.1fs",
+                    attempt,
+                    attempts,
+                    delay,
+                )
+                time.sleep(delay)
+        if response is None:
+            raise RuntimeError("Impossible de générer les embeddings de la requête")
         vector = np.array(response.data[0].embedding, dtype="float32")
         faiss.normalize_L2(vector.reshape(1, -1))
         return vector.reshape(1, -1)

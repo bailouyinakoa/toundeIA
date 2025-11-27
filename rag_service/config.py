@@ -23,8 +23,10 @@ load_dotenv(ENV_PATH)
 def get_settings() -> Dict[str, Any]:
     return {
         "mistral_api_key": os.getenv("MISTRAL_API_KEY"),
+        "groq_api_key": os.getenv("GROQ_API_KEY"),
         "embedding_model": "mistral-embed",
         "chat_model": os.getenv("MISTRAL_CHAT_MODEL", "mistral-large-latest"),
+        "groq_chat_model": os.getenv("GROQ_CHAT_MODEL", "llama-3.3-70b-versatile"),
         "vector_store_path": METADATA_DIR / "vector_store.faiss",
         "metadata_path": METADATA_DIR / "chunks.jsonl",
         "top_k": int(os.getenv("RAG_TOP_K", "5")),

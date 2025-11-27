@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import time
 from pathlib import Path
 from typing import Dict, Iterable, Iterator, List
 
@@ -12,6 +13,7 @@ import faiss
 import numpy as np
 import yaml
 from mistralai import Mistral
+from mistralai.models.sdkerror import SDKError
 from tqdm import tqdm
 
 
@@ -76,7 +78,30 @@ def embed_chunks(chunks: List[Dict], config: Dict) -> np.ndarray:
         desc="Embedding",
         total=(len(texts) + batch_size - 1) // batch_size,
     ):
-        response = client.embeddings.create(model=model_name, inputs=batch)
+        attempts = 3
+        response = None
+        for attempt in range(1, attempts + 1):
+            try:
+                response = client.embeddings.create(model=model_name, inputs=batch)
+                break
+            except SDKError as err:
+                status = getattr(err, "status_code", None)
+                message = getattr(err, "message", "")
+                capacity_hit = status == 429 or "capacity" in message.lower()
+                if not capacity_hit or attempt == attempts:
+                    raise RuntimeError(
+                        "Échec lors de la génération des embeddings (dernier batch)."
+                    ) from err
+                delay = 1.0 * attempt
+                print(
+                    f"[warn] Capacité embeddings atteinte (tentative {attempt}/{attempts}). Nouvelle tentative dans {delay:.1f}s",
+                    flush=True,
+                )
+                time.sleep(delay)
+        if response is None:
+            raise RuntimeError(
+                "Aucune réponse reçue du service d'embeddings après plusieurs tentatives."
+            )
         embeddings.extend([item.embedding for item in response.data])
     return np.array(embeddings, dtype="float32")
 

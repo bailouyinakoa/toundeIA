@@ -1,0 +1,73 @@
+{% load static chatbot_markdown %}
+{% load static %}
+
+<div class="card railbar" data-spy="scroll" style="height: 100%;width: 30%;position: fixed;bottom:0;left: 0;top: 0;">
+    <div class="card-body" style="position: relative; bottom: 0;">
+
+        <div class="">
+            {% if user.is_authenticated %}
+            <div class="mb-3 d-flex fixed-bottom w-25">
+                <span>
+                    <img class="icon" src="{% static 'icon/add_user.png' %}" alt="" id="menu" style=" margin: 10px;width: 40px;height: 40px;">
+                </span>
+                <h5 class="ms-1 mt-3">{{ request.user.username }}</h5>
+            </div>
+            {% else %}
+            <div class="mb-3 ms-5 me-3 d-flex  fixed-bottom w-25">
+                <a href="{% url 'authentication:login' %}">
+                    <h3 class=" me-3" style="background-color: (--accent);">S'inscrire</h3>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        <form method="post" class="chat-form">
+            {% csrf_token %}
+            <div class="field">
+                <label for="{{ form.mode.id_for_label }}">Mode d'explication</label>
+                {{ form.mode }}
+                <small class="help-text">Choisissez entre explication débutant, exercices guidés ou révision par
+                    chapitre.</small>
+            </div>
+            <div class="field">
+                <label for="{{ form.chapter.id_for_label }}">Chapitre ciblé</label>
+                {{ form.chapter }}
+                <small class="help-text">Optionnel&nbsp;: restreindre la réponse à un chapitre précis.</small>
+            </div>
+        </form>
+
+        <form method="post" action="{% url 'chatbot:new_conversation' %}" class="mt-3 conversation-cta">
+            {% csrf_token %}
+            <button type="submit" class="chip action-chip" style="width:100%;justify-content:center;gap:0.6rem;">
+                <img class="icon" src="{% static 'icon/nouvelle_d.png' %}" alt="Nouvelle discussion">
+                Nouvelle discussion
+            </button>
+        </form>
+
+        <div class="conversation-list rail-list" aria-label="Historique des conversations">
+            <div class="conversation-list-header">
+                <p class="list-label">Historique</p>
+                {% if mes_conv %}
+                    <span class="list-count">{{ mes_conv|length }}</span>
+                {% endif %}
+            </div>
+            <div class="conversation-scroll">
+                {% for convers in mes_conv %}
+                    <a class="conversation-item {% if conversation and conversation.pk == convers.pk %}is-active{% endif %}"
+                       href="{% url 'chatbot:message' convers.pk %}"
+                       title="Ouvrir la discussion '{{ convers.title|default:'Sans titre' }}'">
+                        <div class="conversation-content">
+                            <span class="conversation-title">{{ convers.title|default:"Nouvelle question"|truncatechars:60 }}</span>
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="conversation-empty">
+                        <img src="{% static 'icon/nouvelle_d.png' %}" alt="Pas de discussion" class="conversation-empty-icon">
+                        <p>Il n'y a pas encore d'historique.</p>
+                        <small>Lancez une première question pour remplir cette liste.</small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+</div>

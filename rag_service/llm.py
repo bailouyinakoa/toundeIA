@@ -1,9 +1,14 @@
-"""LLM helper wrapping Mistral chat completions."""
+"""LLM helper wrapping Mistral chat completions with optional Groq fallback."""
 
 from __future__ import annotations
 
+import logging
 from typing import Dict, List, Optional
 
+try:  # pragma: no cover - optional dependency guard during upgrade
+    from groq import Groq
+except ImportError:  # pragma: no cover
+    Groq = None  # type: ignore
 from mistralai import Mistral
 from mistralai.models.sdkerror import SDKError
 
@@ -111,11 +116,23 @@ class LLMCapacityError(RuntimeError):
 class LLMClient:
     def __init__(self) -> None:
         settings = get_settings()
-        api_key = settings["mistral_api_key"]
-        if not api_key:
-            raise RuntimeError("Missing MISTRAL_API_KEY in environment")
-        self.client = Mistral(api_key=api_key)
-        self.model = settings["chat_model"]
+        self.mistral_client: Optional[Mistral] = None
+        self.groq_client: Optional[Groq] = None
+        mistral_key = settings["mistral_api_key"]
+        if mistral_key:
+            self.mistral_client = Mistral(api_key=mistral_key)
+        groq_key = settings.get("groq_api_key")
+        if groq_key:
+            if Groq is None:  # pragma: no cover
+                raise RuntimeError(
+                    "Le SDK Groq n'est pas installé. Exécute `pip install groq`."
+                )
+            self.groq_client = Groq(api_key=groq_key)
+        if not self.mistral_client and not self.groq_client:
+            raise RuntimeError("Missing LLM provider configuration (Mistral or Groq)")
+        self.mistral_model = settings["chat_model"]
+        self.groq_model = settings.get("groq_chat_model")
+        self.logger = logging.getLogger(__name__)
 
     def generate(
         self,
@@ -137,8 +154,38 @@ class LLMClient:
             chapter=chapter,
             history=history,
         )
+        mistral_error: Optional[Exception] = None
+        if self.mistral_client:
+            try:
+                return self._call_mistral(messages)
+            except LLMCapacityError as err:
+                mistral_error = err
+                if self.groq_client:
+                    self.logger.warning(
+                        "Mistral capacity issue detected. Falling back to Groq."
+                    )
+                else:
+                    raise
+            except RuntimeError:
+                # Propagate other unexpected errors without fallback for now.
+                raise
+        if self.groq_client:
+            try:
+                return self._call_groq(messages)
+            except LLMCapacityError:
+                # If Mistral already failed, prefer Groq message; otherwise bubble up.
+                raise
+        if mistral_error:
+            raise mistral_error
+        raise RuntimeError("Aucun modèle LLM n'est disponible pour traiter la requête.")
+
+    def _call_mistral(self, messages: List[Dict]) -> str:
+        if not self.mistral_client:
+            raise RuntimeError("Mistral client is not configured")
         try:
-            response = self.client.chat.complete(model=self.model, messages=messages)
+            response = self.mistral_client.chat.complete(
+                model=self.mistral_model, messages=messages
+            )
         except SDKError as err:
             status = getattr(err, "status_code", None)
             message = getattr(err, "message", "")
@@ -147,4 +194,26 @@ class LLMClient:
                     "Le modèle Mistral est momentanément saturé. Patiente quelques secondes puis réessaie."
                 ) from err
             raise RuntimeError("Erreur lors de l'appel au modèle Mistral") from err
+        return response.choices[0].message.content.strip()
+
+    def _call_groq(self, messages: List[Dict]) -> str:
+        if not self.groq_client:
+            raise RuntimeError("Groq client is not configured")
+        try:
+            response = self.groq_client.chat.completions.create(
+                model=self.groq_model,
+                messages=messages,
+            )
+        except Exception as err:
+            status = getattr(err, "status_code", None) or getattr(err, "status", None)
+            message = getattr(err, "message", str(err))
+            if isinstance(message, str) and "capacity" in message.lower():
+                raise LLMCapacityError(
+                    "Le modèle Groq est momentanément saturé. Patiente quelques secondes puis réessaie."
+                ) from err
+            if status == 429:
+                raise LLMCapacityError(
+                    "Le modèle Groq est momentanément saturé. Patiente quelques secondes puis réessaie."
+                ) from err
+            raise RuntimeError("Erreur lors de l'appel au modèle Groq") from err
         return response.choices[0].message.content.strip()

@@ -2,39 +2,39 @@
 
 ## 1. Vue d'ensemble
 - Objectif : assistant pédagogique Django basé sur le cours d'algorithmique, propulsé par un pipeline RAG (Mistral + FAISS).
-- Données traitées : 5 chapitres PDF (intro → procédures) situés dans `data/raw/pdf/`.
+- Données traitées : 5 chapitres PDF (intro → procédures) **+ 2 nouveaux supports TD/devoirs** situés dans `data/raw/pdf/`.
 - Périmètre couvert : ingestion → embeddings/FAISS → service RAG Python → **plateforme Django avec interface chat et rendu Markdown**.
 
 ## 2. Ingestion & preprocessing
 | Étape | Outil/Fichier | Commande | Statut |
 | --- | --- | --- | --- |
-| Inventaire documents | `documentation/data_inventory.md`, `config/docs.yaml` | n/a | ✅ à jour (chap1–5)
-| Extraction PDF → JSONL | `scripts/ingestion/pdf_extractor.py` | `python scripts/ingestion/pdf_extractor.py [--doc-id ...]` | ✅ (JSONL dans `data/processed/`)
-| Nettoyage/Chunking | même script (chunk_size=500, overlap=80) | inclus | ✅
+| Inventaire documents | `documentation/data_inventory.md`, `config/docs.yaml` | n/a | ✅ à jour (chap1–5 + TD/exam)
+| Extraction PDF → JSONL | `scripts/ingestion/pdf_extractor.py` | `python scripts/ingestion/pdf_extractor.py [--doc-id ...]` | ✅ (26/11 : relancé pour **tous** les chapitres + TD/devoirs)
+| Nettoyage/Chunking | même script (chunk_size=380, overlap=60) | inclus | ✅ (granularité homogène sur l’ensemble des documents)
 
 Sorties clés :
-- `data/processed/chap*_*.jsonl` (43–88 chunks/doc).
-- Paramètres configurables dans `config/docs.yaml` > `chunking`.
+- `data/processed/chap*_*.jsonl` + `anciens_devoirs.jsonl`, `td_algo_2021_2022.jsonl` (56–120 chunks/doc à 380 caractères).
+- Paramètres configurables dans `config/docs.yaml` > `chunking` (380/60 appliqué partout depuis la reconstruction du 26/11).
 
 ## 3. Embeddings & index vectoriel
 | Étape | Fichier | Commande | Notes |
 | --- | --- | --- | --- |
-| Génération embeddings | `scripts/ingestion/build_index.py` | `python scripts/ingestion/build_index.py` | nécessite `MISTRAL_API_KEY`
+| Génération embeddings | `scripts/ingestion/build_index.py` | `python scripts/ingestion/build_index.py` | ✅ (26/11 : réussite après ajout retry anti‑429, 428 chunks embarqués)
 | Storage vectoriel | `data/metadata/vector_store.faiss` | auto | Index FAISS cosine (normalisé)
-| Métadonnées chunks | `data/metadata/chunks.jsonl` | auto | contient `vector_id`, textes, chapitres, pages
+| Métadonnées chunks | `data/metadata/chunks.jsonl` | auto | contient `vector_id`, textes, chapitres, pages, tags TD/devoirs
 
-Dépendances : `mistralai`, `faiss-cpu`, `numpy`, `tqdm`, `python-dotenv`. Installer via `pip install -r requirements.txt`.
+Dépendances : `mistralai`, `groq`, `faiss-cpu`, `numpy`, `tqdm`, `python-dotenv`. Installer via `pip install -r requirements.txt`.
 
 ## 4. Service RAG (package `rag_service/`)
 Structure :
 - `config.py` : charge `.env`, chemins, modèles (`mistral-embed`, `mistral-large-latest`).
 - `retriever.py` : charge FAISS + metadata, expose `Retriever.search()` → `RetrievedChunk`.
-- `llm.py` : construit les prompts (modes `standard`, `beginner`, `exercise`, `revision`) et appelle `Mistral.chat`.
+- `llm.py` : construit les prompts (modes `standard`, `beginner`, `exercise`, `revision`) et appelle `Mistral.chat` avec secours Groq si la capacité Mistral est saturée.
 - `service.py` : classe `RAGService.answer(question, mode)` renvoie `RAGResponse {answer, citations, chunks, latency_ms}`.
 - `scripts/test_rag.py` : smoke-test CLI.
 
 Points importants :
-- `.env` doit contenir `MISTRAL_API_KEY` et optionnellement `MISTRAL_CHAT_MODEL`.
+- `.env` doit contenir `MISTRAL_API_KEY` (embeddings + LLM principal), optionnellement `MISTRAL_CHAT_MODEL` ainsi que `GROQ_API_KEY`/`GROQ_CHAT_MODEL` pour activer le secours Groq.
 - Le service gère les cas "hors contexte" (retourne un message explicite si aucun chunk pertinent).
 - Les citations incluent chapitre, page, fichier source et score FAISS.
 
@@ -51,7 +51,8 @@ Points importants :
 2. **Tests automatisés** : couvrir `RAGClient` (mock service), vues `chatbot` et rendu Markdown avec `pytest`/`Django TestCase`.
 3. **Observabilité** : journaliser latence, score moyen FAISS et mode utilisé (middleware ou logging structuré).
 4. **Nettoyage frontend** : déplacer le CSS inline vers `webapp/static/`, ajouter raccourcis clavier (Ctrl+Enter) côté JS.
-5. **Data augmentation** : ajouter slides/TD dans `data/raw/` + relancer ingestion/index.
+5. **Data augmentation** : ✅ Anciens devoirs + TD 2021-2022 ajoutés (chunk_size 380 / overlap 60) et index reconstruit.
+6. **Réaligner les chunks historiques** : ✅ accompli le 26/11 (chap1→5 retraités à 380/60 puis nouvel index FAISS généré).
 
 ## 8. Plateforme Django (`webapp/`)
 - Projet `webapp/RAGCampus` + app `chatbot` isolée du reste des scripts.

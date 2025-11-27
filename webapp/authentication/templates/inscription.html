@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Créer un compte · Assistant RAG Campus</title>
+    <style>
+        :root {
+            --bg: #edf2ff;
+            --panel: #ffffff;
+            --border: #d7e0f5;
+            --text: #0f172a;
+            --muted: #5f6b7c;
+            --accent: #2563eb;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #edf2ff 0%, #f8fafc 100%);
+            color: var(--text);
+            padding: 2rem 1rem;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 460px;
+            background: var(--panel);
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            padding: 2.25rem;
+            box-shadow: 0 25px 50px rgba(15, 23, 42, 0.08);
+        }
+        h1 {
+            margin: 0 0 0.35rem;
+            font-size: 1.75rem;
+            text-align: center;
+        }
+        p.subtitle {
+            margin: 0 0 1.5rem;
+            text-align: center;
+            color: var(--muted);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            display: inline-block;
+        }
+        input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 0.25rem;
+        }
+        .errorlist {
+            margin: 0.35rem 0 0;
+            padding: 0.65rem;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 12px;
+            list-style: none;
+        }
+        button[type="submit"] {
+            margin-top: 0.5rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 0.95rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .alt-link {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+        .alt-link a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card" aria-label="Formulaire d'inscription">
+        <h1>Créer un compte</h1>
+        <p class="subtitle">Quelques informations suffisent pour démarrer.</p>
+        <form method="post">
+            {% csrf_token %}
+            {% for champ in form %}
+                <div class="field">
+                    {% if champ.label %}<label for="{{ champ.id_for_label }}">{{ champ.label }}</label>{% endif %}
+                    {{ champ }}
+                    {% if champ.help_text %}<p class="help-text">{{ champ.help_text }}</p>{% endif %}
+                    {% if champ.errors %}
+                        <ul class="errorlist">{% for error in champ.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+                <ul class="errorlist">{% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}</ul>
+            {% endif %}
+            <button type="submit">Créer mon compte</button>
+        </form>
+        <p class="alt-link">Déjà inscrit ? <a href="{% url 'authentication:login' %}">Se connecter</a></p>
+    </div>
+</body>
+</html>

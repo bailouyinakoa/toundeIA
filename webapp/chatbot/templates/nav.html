@@ -1,0 +1,82 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="Préférences de discussion">
+    <div class="drawer-content">
+        <div class="drawer-header">
+            <h3>Réglages rapides</h3>
+            {% if user.is_authenticated %}
+                <div class="user-chip">
+                    <span class="avatar">{{ request.user.username|first|upper }}</span>
+                    <div>
+                        <span class="chip-label">Connecté</span>
+                        <strong>{{ request.user.username }}</strong>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'authentication:login' %}" class="user-chip">
+                    <img class="icon" src="{% static 'icon/add_user.png' %}" alt="Se connecter">
+                    <div>
+                        <span class="chip-label">Session invitée</span>
+                        <strong>Se connecter</strong>
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+
+        <form method="post" class="chat-form drawer-form">
+            {% csrf_token %}
+            <div class="field">
+                <label for="{{ form.mode.id_for_label }}">Mode d'explication</label>
+                {{ form.mode }}
+                <small class="help-text">Choisissez entre explication débutant, exercices guidés ou révision par chapitre.</small>
+            </div>
+            <div class="field">
+                <label for="{{ form.chapter.id_for_label }}">Chapitre ciblé</label>
+                {{ form.chapter }}
+                <small class="help-text">Optionnel&nbsp;: restreindre la réponse à un chapitre précis.</small>
+            </div>
+        </form>
+
+        <div class="drawer-section">
+            <form method="post" action="{% url 'chatbot:new_conversation' %}" class="drawer-new-conversation">
+                {% csrf_token %}
+                <button type="submit" class="chip action-chip" style="color:#1f2937;font-weight:600;">
+                    <img class="icon" src="{% static 'icon/nouvelle_d.png' %}" alt="Nouvelle discussion">
+                    Nouvelle discussion
+                </button>
+            </form>
+            <div class="conversation-list" aria-live="polite">
+                <div class="conversation-list-header">
+                    <p class="list-label">Conversations récentes</p>
+                    {% if mes_conv %}
+                        <span class="list-count">{{ mes_conv|length }}</span>
+                    {% endif %}
+                </div>
+                <div class="conversation-scroll">
+                    {% for convers in mes_conv %}
+                        <a class="conversation-item {% if conversation and conversation.pk == convers.pk %}is-active{% endif %}"
+                           href="{% url 'chatbot:message' convers.pk %}"
+                           title="Ouvrir la discussion '{{ convers.title|default:'Sans titre' }}'">
+                            <div class="conversation-content">
+                                <span class="conversation-title">{{ convers.title|default:"Nouvelle question"|truncatechars:60 }}</span>
+                            </div>
+                        </a>
+                    {% empty %}
+                        <div class="conversation-empty">
+                            <img src="{% static 'icon/nouvelle_d.png' %}" alt="Pas de discussion" class="conversation-empty-icon">
+                            <p>Aucune conversation enregistrée pour le moment.</p>
+                            <small>Créez une nouvelle discussion pour la retrouver ici.</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    crossorigin="anonymous"></script>
