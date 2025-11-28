@@ -15,6 +15,10 @@
                         <strong>{{ request.user.username }}</strong>
                     </div>
                 </div>
+                <form method="post" action="{% url 'authentication:logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">Se déconnecter</button>
+                </form>
             {% else %}
                 <a href="{% url 'authentication:login' %}" class="user-chip">
                     <img class="icon" src="{% static 'icon/add_user.png' %}" alt="Se connecter">

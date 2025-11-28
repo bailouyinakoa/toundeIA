@@ -15,6 +15,39 @@ body {
   color: #0f172a;
 }
 
+.logout-form,
+.rail-logout-form {
+  margin-top: 0.75rem;
+}
+
+.logout-button {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.logout-button:hover,
+.logout-button:focus-visible {
+  background: rgba(15, 23, 42, 0.16);
+}
+
+.toolbar-logout-form {
+  display: inline;
+}
+
+.logout-icon-button {
+  border: none;
+  background: transparent;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
 .drawer {
   background: var(--panel);
   backdrop-filter: blur(20px);

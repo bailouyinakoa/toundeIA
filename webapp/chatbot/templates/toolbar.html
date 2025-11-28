@@ -11,6 +11,10 @@
         </div>
         <div  class="col-auto position-absolute end-0 me-5" style="justify-content: end;">
             {% if user.is_authenticated %}
+                <form method="post" action="{% url 'authentication:logout' %}" class="toolbar-logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-icon-button" title="Se déconnecter">🚪</button>
+                </form>
             {% else %}
                 <a href="{% url 'authentication:login' %}">
                     <img class="icon" src="{% static 'icon/add_user.png' %}" alt="" id="menu" style=" margin: 10px;">

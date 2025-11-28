@@ -6,16 +6,20 @@
 
         <div class="">
             {% if user.is_authenticated %}
-            <div class="mb-3 d-flex fixed-bottom w-25">
+            <div class="mb-3 d-flex fixed-bottom  bg-white" style="width: 28%;">
                 <span>
                     <img class="icon" src="{% static 'icon/add_user.png' %}" alt="" id="menu" style=" margin: 10px;width: 40px;height: 40px;">
                 </span>
                 <h5 class="ms-1 mt-3">{{ request.user.username }}</h5>
             </div>
+            <form method="post" action="{% url 'authentication:logout' %}" class="rail-logout-form">
+                {% csrf_token %}
+                <button type="submit" class="logout-button">Se déconnecter</button>
+            </form>
             {% else %}
-            <div class="mb-3 ms-5 me-3 d-flex  fixed-bottom w-25">
+            <div class="mb-3 ms-5 me-3 d-flex  fixed-bottom w-25 bg-white" style="width: 28%;">
                 <a href="{% url 'authentication:login' %}">
-                    <h3 class=" me-3" style="background-color: (--accent);">S'inscrire</h3>
+                    <h3 class=" me-3" style="background-color: (--accent); ">S'inscrire</h3>
                 </a>
             </div>
             {% endif %}

@@ -1,7 +1,7 @@
-# RAG Campus – État d'avancement
+# Toundé AI – État d'avancement
 
 ## 1. Vue d'ensemble
-- Objectif : assistant pédagogique Django basé sur le cours d'algorithmique, propulsé par un pipeline RAG (Mistral + FAISS).
+- Objectif : Toundé AI, assistant pédagogique Django basé sur le cours d'algorithmique, propulsé par un pipeline RAG (Mistral + FAISS).
 - Données traitées : 5 chapitres PDF (intro → procédures) **+ 2 nouveaux supports TD/devoirs** situés dans `data/raw/pdf/`.
 - Périmètre couvert : ingestion → embeddings/FAISS → service RAG Python → **plateforme Django avec interface chat et rendu Markdown**.
 

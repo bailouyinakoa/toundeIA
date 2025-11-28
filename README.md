@@ -1,6 +1,6 @@
-# RAG Campus – Chatbot pédagogique (DeepLearn)
+# Toundé AI – Chatbot pédagogique (DeepLearn)
 
-Plateforme d'apprentissage basée sur un pipeline Retrieval-Augmented Generation (FAISS + Mistral) et une interface Django. Les documents de cours sont ingérés, chunkés, vectorisés puis interrogés en mode conversationnel (débutant, exercices, révision).
+Toundé AI est une plateforme d'apprentissage basée sur un pipeline Retrieval-Augmented Generation (FAISS + Mistral) et une interface Django. Les documents de cours d'algorithmique sont ingérés, chunkés, vectorisés puis interrogés en mode conversationnel (débutant, exercices, révision).
 
 ## Architecture
 - **scripts/ingestion/** : extraction PDF → JSONL, chunking et construction de l'index FAISS.
