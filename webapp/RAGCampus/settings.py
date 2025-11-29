@@ -28,7 +28,10 @@ SECRET_KEY = env(
 # ⚠️ Ne laissez jamais DEBUG activé en production.
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1","10.18.35.167"])
+ALLOWED_HOSTS = [
+    'toundeia-g26e.onrender.com',
+]
+
 
 # Applications Django (cœur, dépendances tierces, app métier chatbot).
 INSTALLED_APPS = [
