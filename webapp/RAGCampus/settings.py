@@ -1,7 +1,7 @@
 """Paramétrage Django principal pour le projet RAGCampus."""
 
+import os
 from pathlib import Path
-from decouple import config
 import environ
 import dj_database_url
 # Chemins racine du projet (BASE_DIR = dossier webapp, ROOT_DIR = repository).
@@ -92,7 +92,7 @@ DATABASES = {
 """
 
 DATABASES={
-    "default":dj_database_url.parse(config("DATABASE_URL"))
+    "default":dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
 
 # Validateurs de mots de passe recommandés pour les comptes utilisateurs.
