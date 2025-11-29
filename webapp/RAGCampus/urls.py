@@ -7,8 +7,8 @@ from django.urls import include, path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("chatbot.urls")),
-    path("", include("authentication.urls")),
+    path("", include("webapp.chatbot.urls")),
+    path("", include("webapp.authentication.urls")),
 ]+staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
