@@ -75,7 +75,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "RAGCampus.wsgi.application"
+ROOT_URLCONF = 'webapp.RAGCampus.urls'
+WSGI_APPLICATION = 'webapp.RAGCampus.wsgi.application'
 ASGI_APPLICATION = "RAGCampus.asgi.application"
 
 CHANNEL_LAYERS = {
