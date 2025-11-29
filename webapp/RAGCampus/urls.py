@@ -5,6 +5,9 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import include, path
 
+
+def home(request):
+    return HttpResponse("Page d’accueil OK ✅")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("webapp.chatbot.urls")),
