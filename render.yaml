@@ -1,0 +1,33 @@
+# Exported from Render on 2025-11-29T16:29:00Z
+version: "1"
+services:
+- type: web
+  name: toundeia
+  runtime: python
+  repo: https://github.com/bailouyinakoa/toundeIA
+  plan: free
+  envVars:
+  - key: FAISS_INDEX_PATH
+    sync: false
+  - key: RAG_MAX_CONTEXT_TOKENS
+    sync: false
+  - key: RAG_TOP_K
+    sync: false
+  - key: MISTRAL_CHAT_MODEL
+    sync: false
+  - key: MISTRAL_API_KEY
+    sync: false
+  - key: CSRF_TRUSTED_ORIGINS
+    sync: false
+  - key: CORS_ALLOW_ALL_ORIGINS
+    sync: false
+  - key: DJANGO_ALLOWED_HOSTS
+    sync: false
+  - key: DJANGO_DEBUG
+    sync: false
+  - key: DJANGO_SECRET_KEY
+    sync: false
+  region: oregon
+  buildCommand: pip install -r requirements.txt
+  startCommand: RAGCampus.wsgi:application
+  autoDeployTrigger: commit
