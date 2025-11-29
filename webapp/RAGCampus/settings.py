@@ -1,9 +1,9 @@
 """Paramétrage Django principal pour le projet RAGCampus."""
 
 from pathlib import Path
-
+from decouple import config
 import environ
-
+import dj_database_url
 # Chemins racine du projet (BASE_DIR = dossier webapp, ROOT_DIR = repository).
 BASE_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BASE_DIR.parent
@@ -22,6 +22,8 @@ SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="django-insecure-bu_lio7r#uotj@vbrb^*qsq4s@%3yzbfnzixtj^8t_va#8cm@s",
 )
+
+
 
 # ⚠️ Ne laissez jamais DEBUG activé en production.
 DEBUG = env.bool("DJANGO_DEBUG", default=True)
@@ -80,11 +82,17 @@ CHANNEL_LAYERS = {
 }
 
 # Base de données par défaut : SQLite pour le développement local.
+""""
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
+}
+"""
+
+DATABASES={
+    "default":dj_database_url.parse(config("DATABASE_URL"))
 }
 
 # Validateurs de mots de passe recommandés pour les comptes utilisateurs.
