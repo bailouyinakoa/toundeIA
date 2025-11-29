@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "channels",
-    "chatbot",
-    "authentication",
+    'webapp.chatbot',
+    "webapp.authentication",
 ]
 
 MIDDLEWARE = [
