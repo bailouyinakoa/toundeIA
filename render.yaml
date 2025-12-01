@@ -3,6 +3,7 @@ version: "1"
 services:
 - type: web
   name: toundeia
+  rootDir: webapp
   runtime: python
   repo: https://github.com/bailouyinakoa/toundeIA
   plan: free
