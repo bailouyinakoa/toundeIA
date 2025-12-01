@@ -28,9 +28,7 @@ SECRET_KEY = env(
 # ⚠️ Ne laissez jamais DEBUG activé en production.
 DEBUG =True
 
-ALLOWED_HOSTS = [
-    'toundeia-g26e.onrender.com',
-]
+ALLOWED_HOSTS = [*]
 
 
 # Applications Django (cœur, dépendances tierces, app métier chatbot).
