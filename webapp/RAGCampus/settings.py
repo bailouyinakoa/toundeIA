@@ -26,7 +26,7 @@ SECRET_KEY = env(
 
 
 # ⚠️ Ne laissez jamais DEBUG activé en production.
-DEBUG = env.bool("DJANGO_DEBUG", default=True)
+DEBUG =True
 
 ALLOWED_HOSTS = [
     'toundeia-g26e.onrender.com',
